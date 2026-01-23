@@ -1,0 +1,30 @@
+{
+  "name": "auth0-automated-tests",
+  "version": "1.0.0",
+  "description": "Tests automatizados para login con Auth0",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:debug": "DEBUG=true playwright test --debug",
+    "test:chrome": "playwright test --project=chromium",
+    "test:ui": "playwright test --ui",
+    "test:report": "playwright show-report",
+    "test:update-snapshots": "playwright test --update-snapshots"
+  },
+  "keywords": [
+    "playwright",
+    "auth0",
+    "e2e",
+    "testing"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.40.0"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1"
+  }
+}
+
