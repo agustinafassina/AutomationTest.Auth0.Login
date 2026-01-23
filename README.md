@@ -167,3 +167,6 @@ Or directly:
 ```bash
 npx playwright show-report
 ```
+
+## License
+By Agustina Fassina
