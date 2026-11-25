@@ -1,13 +1,11 @@
 {
   "name": "auth0-automated-tests",
   "version": "1.0.0",
-  "description": "Tests automatizados para login con Auth0",
-  "main": "index.js",
+  "description": "Automated Playwright end-to-end tests for Auth0 login",
   "scripts": {
     "test": "playwright test",
     "test:headed": "playwright test --headed",
-    "test:debug": "DEBUG=true playwright test --debug",
-    "test:chrome": "playwright test --project=chromium",
+    "test:debug": "cross-env DEBUG=true playwright test --debug",
     "test:ui": "playwright test --ui",
     "test:report": "playwright show-report",
     "test:update-snapshots": "playwright test --update-snapshots"
@@ -18,13 +16,14 @@
     "e2e",
     "testing"
   ],
-  "author": "",
+  "author": "Agustina Fassina",
   "license": "ISC",
-  "devDependencies": {
-    "@playwright/test": "^1.40.0"
+  "engines": {
+    "node": ">=18"
   },
-  "dependencies": {
-    "dotenv": "^16.3.1"
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "cross-env": "^10.1.0",
+    "dotenv": "^18.0.10"
   }
 }
-
