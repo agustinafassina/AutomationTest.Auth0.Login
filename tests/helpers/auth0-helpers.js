@@ -10,6 +10,7 @@ const SELECTORS = {
   EMAIL: 'input[name="email"], input[type="email"], input[id*="email"], input[id*="username"]',
   PASSWORD: 'input[name="password"], input[type="password"]',
   SUBMIT: 'button[type="submit"], button:has-text("Continue"), button:has-text("Log in"), button:has-text("Sign in"), button:has-text("Continuar"), button:has-text("Iniciar sesión")',
+  ERROR: '#error-element-password, #error-element-username, #error-element-email, [data-error-code], .ulp-input-error-message',
   CLICKABLE_ELEMENTS: 'button, a[role="button"], a[href*="login"], a[href*="auth"], [onclick], [class*="button"], [class*="btn"]',
   COMMON_LOGIN_BUTTONS: [
     'button:has-text("Log in")',
@@ -151,20 +152,36 @@ async function submitAuth0LoginForm(page) {
   await submitButton.click();
 }
 
-async function waitForAuth0Redirect(page) {
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
+ * Regex that matches the Auth0 login page URL.
+ * Uses AUTH0_DOMAIN when set (required for custom domains), otherwise any *.auth0.com host.
+ */
+function getAuth0UrlPattern() {
+  const domain = process.env.AUTH0_DOMAIN;
+  if (domain) {
+    const host = domain.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+    return new RegExp(`^https?://${escapeRegExp(host)}/`);
+  }
+  return /^https?:\/\/[^/]*\.auth0\.com\//;
+}
+
+async function waitForAuth0Redirect(page, auth0Url = getAuth0UrlPattern()) {
   console.log('Waiting for redirect to Auth0...');
-  await page.waitForURL(/auth0\.com|login/, { timeout: TIMEOUTS.NAVIGATION });
+  await page.waitForURL(auth0Url, { timeout: TIMEOUTS.NAVIGATION });
 }
 
 async function waitForAppRedirect(page, appUrl) {
   console.log('Waiting for redirect after login...');
-  const escapedUrl = appUrl.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  await page.waitForURL(new RegExp(escapedUrl), { timeout: TIMEOUTS.REDIRECTION });
+  await page.waitForURL(new RegExp(`^${escapeRegExp(appUrl)}`), { timeout: TIMEOUTS.REDIRECTION });
   await page.waitForLoadState('networkidle');
 }
 
-async function performAuth0Login(page, email, password, appUrl) {
-  await waitForAuth0Redirect(page);
+async function performAuth0Login(page, email, password, appUrl, auth0Url) {
+  await waitForAuth0Redirect(page, auth0Url);
   await fillAuth0LoginForm(page, email, password);
   await submitAuth0LoginForm(page);
   await waitForAppRedirect(page, appUrl);
@@ -178,6 +195,8 @@ function getConfig() {
     email: process.env.AUTH0_EMAIL,
     password: process.env.AUTH0_PASSWORD,
     buttonSelector: process.env.BUTTON_SELECTOR || 'button[type="submit"]',
+    successSelector: process.env.SUCCESS_SELECTOR || null,
+    auth0Url: getAuth0UrlPattern(),
   };
 }
 
@@ -185,6 +204,7 @@ module.exports = {
   TIMEOUTS,
   SELECTORS,
   validateEnvVars,
+  getAuth0UrlPattern,
   findLoginButtonByPosition,
   findLoginButtonBySelectors,
   clickLoginButton,

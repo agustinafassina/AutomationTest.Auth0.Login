@@ -1,6 +1,6 @@
 // @ts-check
 const { defineConfig, devices } = require('@playwright/test');
-require('dotenv').config();
+require('dotenv').config({ quiet: true });
 
 module.exports = defineConfig({
   testDir: './tests',
@@ -17,7 +17,7 @@ module.exports = defineConfig({
   
   retries: process.env.CI ? 2 : 0,
   
-  workers: process.env.CI ? 1 : 1,
+  workers: 1,
   
   reporter: [
     ['html', { outputFolder: 'playwright-report' }],
